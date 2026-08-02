@@ -1,0 +1,28 @@
+services:
+  # =========================================================
+  # Backend Web Service (FastAPI running natively on Render)
+  # =========================================================
+  - type: web
+    name: newshub-backend
+    env: python
+    
+    # Render native command variables
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    
+    # Environment config
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.5
+      - key: AI_PROVIDER
+        value: gemini
+      - key: DATABASE_URL
+        sync: false  # Loaded securely via Render Console dashboard secrets
+      - key: GEMINI_API_KEY
+        sync: false  # Loaded securely via Render Console dashboard secrets
+      - key: NEWSAPI_KEY
+        sync: false  # Loaded securely via Render Console dashboard secrets
+      - key: CORS_ORIGINS
+        sync: false  # Loaded securely via Render Console dashboard secrets
+      - key: LOG_LEVEL
+        value: INFO
