@@ -1,16 +1,19 @@
-from transformers import pipeline
-import torch
-
 class SentimentAnalyzer:
     def __init__(self):
-        """Initialize the sentiment analysis model."""
+        """Initialize the sentiment analysis model placeholder."""
         self.sentiment_pipeline = None
-        self._load_model()
+        self.tried_loading = False
     
     def _load_model(self):
-        """Load the sentiment analysis model."""
+        """Load the sentiment analysis model lazily."""
+        if self.tried_loading:
+            return
+        self.tried_loading = True
         try:
-            print("🔄 Loading sentiment analysis model...")
+            print("🔄 Lazy-loading sentiment analysis model...")
+            from transformers import pipeline
+            import torch
+            
             self.sentiment_pipeline = pipeline(
                 "sentiment-analysis",
                 model="cardiffnlp/twitter-roberta-base-sentiment-latest",
@@ -18,9 +21,12 @@ class SentimentAnalyzer:
             )
             print("✅ Sentiment analysis model loaded successfully")
         except Exception as e:
-            print(f"❌ Error loading sentiment model: {e}")
+            print(f"❌ Error loading sentiment model: {e}. Trying fallback pipeline...")
             # Fallback to a simpler model
             try:
+                from transformers import pipeline
+                import torch
+                
                 self.sentiment_pipeline = pipeline(
                     "sentiment-analysis",
                     device=0 if torch.cuda.is_available() else -1
@@ -48,6 +54,9 @@ class SentimentAnalyzer:
             }
         
         try:
+            # Trigger lazy load
+            self._load_model()
+            
             if self.sentiment_pipeline:
                 # Truncate text if too long
                 if len(text) > 512:
@@ -106,5 +115,5 @@ class SentimentAnalyzer:
         else:
             return {"label": "NEUTRAL", "score": 0.5, "confidence": "low"}
 
-# Global instance
+# Global instance (placeholder - model won't load until .analyze_sentiment() is called)
 sentiment_analyzer = SentimentAnalyzer()
