@@ -20,10 +20,12 @@ from ml_models.recommend import recommender
 from services.ai_service import ai_service
 
 # Initialize FastAPI app
+root_path = "/api" if os.getenv("VERCEL") else ""
 app = FastAPI(
     title="NewsHub API",
     description="A real-time news aggregator with AI-powered analysis",
-    version="1.0.0"
+    version="1.0.0",
+    root_path=root_path
 )
 
 # CORS middleware for frontend integration
