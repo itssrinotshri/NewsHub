@@ -1,26 +1,28 @@
-from transformers import pipeline
-import torch
-
 class NewsSummarizer:
     def __init__(self):
-        """Initialize the summarization model."""
+        """Initialize the summarization model placeholder."""
         self.model_name = "facebook/bart-large-cnn"
         self.summarizer = None
-        self._load_model()
+        self.tried_loading = False
     
     def _load_model(self):
-        """Load the summarization model."""
+        """Load the summarization model lazily."""
+        if self.tried_loading:
+            return
+        self.tried_loading = True
         try:
-            print("🔄 Loading BART summarization model...")
+            print("🔄 Lazy-loading BART summarization model...")
+            from transformers import pipeline
+            import torch
+            
             self.summarizer = pipeline(
                 "summarization",
-                model="facebook/bart-large-cnn",
+                model=self.model_name,
                 device=0 if torch.cuda.is_available() else -1
             )
             print("✅ Summarization model loaded successfully")
         except Exception as e:
             print(f"❌ Error loading summarization model: {e}")
-            # Fallback to a simpler approach
             self.summarizer = None
     
     def summarize(self, text: str, max_length: int = 150, min_length: int = 30) -> str:
@@ -39,6 +41,9 @@ class NewsSummarizer:
             return "Text too short for summarization"
         
         try:
+            # Trigger lazy load
+            self._load_model()
+            
             if self.summarizer:
                 # Truncate text if too long (BART has input limits)
                 if len(text) > 1024:
@@ -73,5 +78,5 @@ class NewsSummarizer:
         
         return summary[:max_length]
 
-# Global instance
+# Global instance (placeholder - model won't load until .summarize() is called)
 summarizer = NewsSummarizer()
