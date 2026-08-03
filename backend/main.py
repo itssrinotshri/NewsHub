@@ -191,8 +191,11 @@ async def fetch_news_from_api(country: str = "us", category: str = "general", ke
                     if articles:
                         # Filter for recent news only
                         filtered_articles = filter_recent_news(articles, hours=48)
+                        if not filtered_articles:
+                            print("⚠️ Recent news filter returned 0 results. Falling back to unfiltered top-headlines.")
+                            filtered_articles = articles
                         normalized_articles = [normalize_article(article) for article in filtered_articles]
-                        print(f"✅ Fetched {len(normalized_articles)} recent articles (top-headlines)")
+                        print(f"✅ Fetched {len(normalized_articles)} articles (top-headlines)")
                         return normalized_articles
                     # Fallback when zero results: try /everything with a smart query
                     else:
@@ -237,8 +240,11 @@ async def fetch_news_from_api(country: str = "us", category: str = "general", ke
                                 arts2 = data2.get('articles', [])
                                 # Filter for recent news only
                                 filtered_articles2 = filter_recent_news(arts2, hours=48)
+                                if not filtered_articles2:
+                                    print("⚠️ Recent news filter returned 0 results. Falling back to unfiltered fallback articles.")
+                                    filtered_articles2 = arts2
                                 normalized_articles = [normalize_article(article) for article in filtered_articles2]
-                                print(f"✅ Fetched {len(normalized_articles)} recent articles via /everything fallback")
+                                print(f"✅ Fetched {len(normalized_articles)} articles via /everything fallback")
                                 return normalized_articles
                         # If fallback fails too, return empty list gracefully
                         return []
